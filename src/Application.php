@@ -1,38 +1,48 @@
 <?php
 
 require_once "./../config/database.php";
+require_once "./../config/constants.php";
 
-class Application {
+class Router {
     private $routes = [];
-    private $db;
 
     public function __construct() {
-        // create a database connection
-        $this->db = Database::getInstance()->getConnection();
+    }
 
-        // get routes
-        $this->routes = require_once __DIR__ . "./../config/routes.php";
+    public function get($path, $callback) {
+        $this->routes['GET'][$path] = $callback;
+    }
+
+    public function post($path, $callback) {
+        $this->routes['POST'][$path] = $callback;
+    }
+
+    public function resolve() {
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
+        $requestUri = str_replace("/beauty-skin", "", $_SERVER['REQUEST_URI']);
+
+        if (isset($this->routes[$requestMethod][$requestUri])) {
+            return call_user_func($this->routes[$requestMethod][$requestUri]);
+        } else {
+            http_response_code(404);
+            include __DIR__ . "/views/error/404.php";
+            exit;
+        }
+    }
+}
+
+class Application {
+    public $db;
+    public $router;
+
+    public function __construct() {
+        $this->db = Database::getInstance()->getConnection();
+        $this->router = new Router();
+
+        require __DIR__ . "/../routes/web.php";
     }
 
     public function run() {
-        $requestUri = $_SERVER['REQUEST_URI'];
-        $controllerAction = $this->routes[$requestUri] ?? null;
-
-        if ($controllerAction) {
-            list($controller, $method) = explode('@', $controllerAction);
-            $controllerPath = __DIR__ . '/controllers/' . $controller . '.php';
-
-            if (file_exists($controllerPath)) {
-                require_once $controllerPath;
-                $controllerInstance = new $controller($this->db); // Pass db to controller
-                echo $controllerInstance->$method();
-            } else {
-                http_response_code(404);
-                echo "Page not found.";
-            }
-        } else {
-            http_response_code(404);
-            echo "Page not found.";
-        }
+        $this->router->resolve();
     }
 }
