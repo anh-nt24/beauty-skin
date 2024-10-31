@@ -92,7 +92,8 @@ class AuthController {
                         "user" => [
                             "id" => $customerData['id'],
                             "name" => $customerData['name'],
-                            "email" => $email
+                            "email" => $email,
+                            "role" => $user['role']
                         ]
                     ]);
                 } else {
@@ -104,7 +105,8 @@ class AuthController {
                         "user" => [
                             "id" => $adminData['id'],
                             "name" => $adminData['name'],
-                            "email" => $email
+                            "email" => $email,
+                            "role" => $user['role']
                         ]
                     ]);
                 }
