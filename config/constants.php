@@ -12,4 +12,66 @@
 
     define('ROLE_ADMIN', 'admin');
     define('ROLE_CLIENT', 'client');
+
+    define('ADMIN_PANEL', [
+        "order-management" => [
+            "icon" => "bi bi-cart",
+            "subsections" => [
+                [
+                    "name" => "All Orders",
+                    "url" => "index"
+                ],
+                [
+                    "name" => "Return/Refund",
+                    "url" => "return"
+                ]
+            ],
+        ],
+
+        "product-management" => [
+            "icon" => "bi bi-box-seam",
+            "subsections" => [
+                [
+                    "name" => "All Products",
+                    "url" => "index"
+                ],
+                [
+                    "name" => "Add Product",
+                    "url" => "add"
+                ]
+            ],
+        ],
+
+        "customer-management" => [
+            "icon" => "bi bi-people-fill"
+        ],
+
+        "customer-service" => [
+            "icon" => "bi bi-chat-heart",
+            "subsections" => [
+                [
+                    "name" => "Chat",
+                    "url" => "chat"
+                ],
+                [
+                    "name" => "Rating",
+                    "url" => "rating"
+                ]
+            ],
+        ],
+
+        "report" => [
+            "icon" => "bi bi-activity",
+            "subsections" => [
+                [
+                    "name" => "Revenue",
+                    "url" => "revenue"
+                ],
+                [
+                    "name" => "Performance",
+                    "url" => "performance"
+                ]
+            ],
+        ],
+    ]);
 ?>
