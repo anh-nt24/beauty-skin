@@ -45,15 +45,9 @@
                                     <a class="dropdown-item" href="/password">Change password</a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="/logout">Logout <i class="fa fa-sign-out"></i> </a>
+                                    <a class="dropdown-item" href="<?php echo ROOT_URL . '/logout'?>">Logout <i class="fa fa-sign-out"></i> </a>
                                 </li>
                             </ul>
-                        </li>
-                    <?php else: ?>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link normal-href" data-toggle="modal" data-target=".bs-modal-md" data-bs-toggle="modal" data-bs-target="#loginModal">
-                                <i class="fa fa-sign-in"></i> Login
-                            </a>
                         </li>
                     <?php endif; ?>
                     

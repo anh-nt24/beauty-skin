@@ -15,12 +15,7 @@ function isAdmin() {
 
 
 $this->router->get('/', function() use ($homeController) {
-    if (isAdmin()) {
-        header("Location:" . ROOT_URL . "/admin/order-management/index");
-        exit;
-    } else {
-        $homeController->index();
-    }
+    $homeController->index();
 });
 
 $this->router->get('/admin', function() {
@@ -46,23 +41,16 @@ function getDefaultSubsections() {
 }
 
 
-$this->router->get('@/^\/admin\/([^\/]+)(?:\/([^\/]+))?$/', function($section = null, $subsection = null) use ($homeController) {
-    if (isAdmin()) {
-        $default_subsections = getDefaultSubsections();
+// $this->router->get('@/^\/admin\/([^\/]+)(?:\/([^\/]+))?$/', function($section = null, $subsection = null) use ($homeController) {
+//     if (isAdmin()) {
+//         $default_subsections = getDefaultSubsections();
 
-        if ($section === null) {
-            $section = 'order-management';
-        }
+//         $section = $section ?? 'order-management';
+//         $subsection = $subsection ?? ($default_subsections[$section] ?? 'index');
 
-        if ($subsection === null) {
-            $subsection = $default_subsections[$section] ?? 'index';
-            header("Location: " . ROOT_URL . "/admin/{$section}/{$subsection}");
-            exit;
-        }
-
-        $homeController->admin($section, $subsection);
-    } else {
-        header("Location:/" . ROOT_URL);
-        exit;
-    }
-});
+//         $homeController->admin($section, $subsection);
+//     } else {
+//         header("Location:/" . ROOT_URL);
+//         exit;
+//     }
+// });

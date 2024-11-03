@@ -12,7 +12,7 @@
         <ul class="nav flex-column">
             <?php foreach (ADMIN_PANEL as $keySection => $sectionData): ?>
                 <li class="nav-item mb-2">
-                    <a href="<?php echo ROOT_URL . "/admin/$keySection"; ?><?php echo isset($sectionData['subsections']) ? "" : "/index" ?>" 
+                    <a href="<?php echo ROOT_URL . "/admin/$keySection/index"; ?>" 
                     class="nav-link sidebar-link <?php echo $current_section == $keySection ? 'active-section' : ''; ?>">
                         <i class="<?php echo $sectionData['icon']; ?>  fs-5 me-2"></i>
                         <span class="sidebar-text"><?php echo ucwords(str_replace('-', ' ', $keySection)); ?></span>

@@ -8,6 +8,7 @@
 
     <!-- bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
@@ -29,13 +30,16 @@
         <!-- SLIDER -->
         <?php include __DIR__ . "/slider.php" ?>
 
-        <!-- TOP PRODUCTs -->
+        <!-- TOP PRODUCTS -->
         <h2 class="text-center mt-4">BEST SELLERS</h2>
+        <?php include __DIR__ . "/best_seller.php" ?>
 
         <hr class="m-4">
 
         <!-- NEWEST PRODUCT -->
         <h2 class="text-center">NEWEST PRODUCTS</h2>
+        <?php include __DIR__ . "/newest_product.php" ?>
+
 
     </main>
 

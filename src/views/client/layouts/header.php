@@ -47,7 +47,7 @@
                                     <a class="dropdown-item" href="/profile">Profile</a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="/logout">Logout <i class="fa fa-sign-out"></i> </a>
+                                    <a class="dropdown-item" href="<?php echo ROOT_URL . '/logout'?>">Logout <i class="fa fa-sign-out"></i> </a>
                                 </li>
                             </ul>
                         </li>
@@ -60,7 +60,10 @@
                     <?php endif; ?>
 
                     <li class="nav-item">
-                        <a href="/cart" class="nav-link normal-href"><i class="fa fa-shopping-cart mr-2"></i> Cart</a>
+                        <button class="btn nav-link normal-href" onclick="toggleCart()">
+                            <i class="fa fa-shopping-cart mr-2"></i> Cart
+                            <span id="cart-count" class="text-danger"></span>
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -70,12 +73,9 @@
         <div class="row mt-3">
             <div class="col-md-12 col-sm-6 col-2">
                 <ul class="header__product-category">
-                    <li><a href="" class="normal-href">Lipstick</a></li>
-                    <li><a href="" class="normal-href">Makeup Remover</a></li>
-                    <li><a href="" class="normal-href">Sleeping Mask</a></li>
-                    <li><a href="" class="normal-href">Toner</a></li>
-                    <li><a href="" class="normal-href">Whitening</a></li>
-                    <li><a href="" class="normal-href">Peeling</a></li>
+                    <?php foreach (array_slice(CATEGORIES, 0, 5) as $categoryIdx => $data): ?>
+                        <li><a href="" class="normal-href"><?php echo $data; ?></a></li>
+                    <?php endforeach; ?>
                 </ul>
 
             </div>
@@ -83,11 +83,51 @@
     </div>
 </nav>
 
+<?php include_once __DIR__ . '/cart_dialog.php' ?>
+
 <div class="header-remove-space" style="height:135px"></div>
+
+<!-- cart -->
+<script>
+    function toggleCart() {
+        const backdrop = document.getElementById('cartBackdrop');
+        backdrop.classList.toggle('show');
+        if (backdrop.classList.contains('show')) {
+            loadCart();
+        }
+    }
+
+    function updateCartCount() {
+        const cart = getCookie('cart');
+        let itemCount = 0;
+
+        if (cart) {
+            try {
+                const cartItems = JSON.parse(cart);
+                itemCount = Object.values(cartItems).reduce((total, quantity) => total + quantity, 0);
+            } catch (error) {
+                console.error("Error parsing cart cookie:", error);
+            }
+        }
+
+        document.getElementById('cart-count').textContent = `(${itemCount})`;
+    }
+    updateCartCount();
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+
+    function setCookie(name, value) {
+        document.cookie = `${name}=${value}; path=/`;
+    }
+</script>
 
 <!-- hide header -->
 <script>
-
     // track scroll position and mouse position
     const header = document.getElementById("header");
     const specificPosition = 200;

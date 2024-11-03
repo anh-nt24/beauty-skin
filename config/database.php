@@ -2,6 +2,7 @@
 
 require_once __DIR__ . "/../src/models/Account.php";
 require_once __DIR__ . "/../src/models/Admin.php";
+require_once __DIR__ . "/constants.php";
 
 class Database {
     private static $instance = null;
@@ -43,12 +44,12 @@ class Database {
         $this->connection->exec("CREATE DATABASE IF NOT EXISTS $this->dbName");
         $this->connection->exec("USE $this->dbName");
 
-        $this->connection->exec("
+        $sql = "
             CREATE TABLE IF NOT EXISTS accounts (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 email VARCHAR(255) NOT NULL UNIQUE,
                 password VARCHAR(255) NOT NULL,
-                role ENUM('client', 'admin') DEFAULT 'client',
+                role ENUM('" . ROLE_CLIENT . "', '" . ROLE_ADMIN . "') DEFAULT '" . ROLE_CLIENT . "',
                 registration_date DATETIME DEFAULT CURRENT_TIMESTAMP
             );
 
@@ -70,12 +71,12 @@ class Database {
 
             CREATE TABLE IF NOT EXISTS products (
                 id INT PRIMARY KEY AUTO_INCREMENT,
-                product_name VARCHAR(255) NOT NULL UNIQUE,
+                product_name VARCHAR(255) NOT NULL,
                 description TEXT NOT NULL,
                 price DECIMAL(10, 2) NOT NULL,
                 category VARCHAR(20) NOT NULL,
                 stock INT DEFAULT 0,
-                image VARCHAR(255)
+                image VARCHAR(2048)
             );
 
             CREATE TABLE IF NOT EXISTS orders (
@@ -84,7 +85,7 @@ class Database {
                 order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                 shipping_address TEXT NOT NULL,
                 total_amount DECIMAL(10, 2) NOT NULL,
-                order_status ENUM('In progress', 'Ready for dispatch', 'Delivered', 'Completed') DEFAULT 'In progress',
+                order_status ENUM('" . STATE_1 . "', '" . STATE_2 . "', '" . STATE_3 . "', '" . STATE_4 . "') DEFAULT '" . STATE_1 . "',
                 FOREIGN KEY (customer_id) REFERENCES customers(id)
             );
 
@@ -114,7 +115,9 @@ class Database {
                 answer VARCHAR(255) NOT NULL
             );
 
-        ");
+        ";
+
+        $this->connection->exec($sql);
     }
 
     private function initAdminAccount() {

@@ -12,6 +12,22 @@
 
     define('ROLE_ADMIN', 'admin');
     define('ROLE_CLIENT', 'client');
+    
+    define('STATE_1', 'Pending');
+    define('STATE_2', 'Ready');
+    define('STATE_3', 'Delivered');
+    define('STATE_4', 'Completed');
+
+    define('CATEGORIES', [
+        'Lipstick',
+        'Makeup Remover',
+        'Sleeping Mask',
+        'Toner',
+        'Whitening',
+        'Peeling'
+    ]);
+
+
 
     define('ADMIN_PANEL', [
         "order-management" => [
