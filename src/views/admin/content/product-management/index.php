@@ -61,10 +61,10 @@ $total_products = count($productData);
             <span class="fw-bold ms-2"><?php echo $total_products; ?></span>
         </div>
         
-        <button class="btn btn-success">
+        <a href="<?php echo ROOT_URL?>/admin/product-management/add" class="btn btn-success">
             <i class="bi bi-plus-lg me-2"></i>
             Add New Product
-        </button>
+        </a>
     </div>
 
     <!-- table -->
@@ -76,7 +76,8 @@ $total_products = count($productData);
                         <tr>
                             <th class="px-4" style="width: 45%">Product</th>
                             <th style="width: 20%">Price</th>
-                            <th style="width: 20%">Stock</th>
+                            <th style="width: 10%">Stock</th>
+                            <th style="width: 10%">Sold</th>
                             <th class="px-4" style="width: 15%">Actions</th>
                         </tr>
                     </thead>
@@ -124,12 +125,19 @@ $total_products = count($productData);
                                     </span>
                                 </div>
                             </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-success">
+                                        <?php echo $product['purchases']; ?>
+                                    </span>
+                                </div>
+                            </td>
                             <td class="px-4">
                                 <div class="btn-group">
                                     <button type="button" 
-                                            class="btn btn-light btn-sm" 
-                                            title="View Details"
-                                            onclick="viewProduct(<?php echo $product['id']; ?>)">
+                                        class="btn btn-light btn-sm" 
+                                        title="View Details"
+                                        onclick="viewProduct(<?php echo $product['id']; ?>, '<?php echo $product['product_name']; ?>')">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                     <button type="button" 
@@ -160,5 +168,41 @@ $total_products = count($productData);
     </div>
 
     <script>
+        function convertToSlug(productName) {
+            let slug = productName.toLowerCase();
+            slug = slug.replace(/\s+/g, '-');
+            slug = slug.replace(/[^a-z0-9\-\.]/g, '');
+            return slug;
+        }
+
+        function viewProduct(id, name) {
+            const href = `<?php echo ROOT_URL?>/admin/product-management/view?product=${convertToSlug(name)}&id=${id}`;
+            window.location.href = href;
+        }
+        function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                fetch(`<?php echo ROOT_URL;?>/admin/product-management/delete?id=${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert("Error deleting this product.");
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    alert("An error occurred while processing your request.");
+                });
+            }
+        }
     </script>
 </div>

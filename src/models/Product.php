@@ -8,9 +8,27 @@ class Product {
     }
 
     public function findAll() {
-        $stmt = $this->db->prepare("SELECT * FROM products ORDER BY id DESC");
+        $stmt = $this->db->prepare("
+            SELECT * FROM products ORDER BY 
+                CASE WHEN stock = 0 THEN 1 ELSE 0 END, 
+                id DESC
+        ");
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);        
+
+        foreach ($products as &$product) {
+            $purchasesStmt = $this->db->prepare("
+                SELECT SUM(quantity) AS purchases
+                FROM order_details
+                WHERE product_id = ?
+            ");
+            
+            $purchasesStmt->execute([$product['id']]);
+            
+            $purchasesData = $purchasesStmt->fetch(PDO::FETCH_ASSOC);
+            $product['purchases'] = $purchasesData['purchases'] ?? 0;
+        }
+        return $products;
     }
 
     public function save($data) {
@@ -27,6 +45,27 @@ class Product {
         ]);
     }
 
+    public function update($data) {
+        $sql = "UPDATE products SET product_name = ?, description = ?, price = ?, category = ?, stock = ?, image = ?
+                WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            $data['product_name'], 
+            $data['description'], 
+            $data['price'], 
+            $data['category'], 
+            $data['stock'], 
+            $data['image'],
+            $data['id']
+        ]);
+    }
+
+    public function delete($id) {
+        $sql = "UPDATE products SET stock = 0 WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$id]);
+    }
+
     public function findNewest($limit, $offset) {
         $stmt = $this->db->prepare("
             SELECT 
@@ -34,6 +73,7 @@ class Product {
                 IFNULL(AVG(r.rating), 0) AS average_rating
             FROM products p
             LEFT JOIN product_reviews r ON p.id = r.product_id
+            WHERE p.stock > 0
             GROUP BY p.id
             ORDER BY p.id DESC
             LIMIT :limit OFFSET :offset
@@ -55,6 +95,7 @@ class Product {
             FROM products p
             LEFT JOIN order_details od ON p.id = od.product_id
             LEFT JOIN product_reviews r ON p.id = r.product_id
+            WHERE p.stock > 0
             GROUP BY p.id
             ORDER BY total_quantity_sold DESC
             LIMIT :limit OFFSET :offset
@@ -70,7 +111,7 @@ class Product {
     public function findProductDetailsById($productId) {
         // query product
         $stmt = $this->db->prepare("
-            SELECT id, product_name, description, price, stock, image
+            SELECT *
             FROM products
             WHERE id = ?
         ");

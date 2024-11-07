@@ -10,19 +10,52 @@ $this->router->post('/admin/product-management/add', function() use($productCont
     $productController->addProduct($_POST, $_FILES);
 });
 
-$this->router->get('/admin/product-management/index', function() use($productController) {
-    $productData = $productController->getAllProducts();
-    $data = [
-        'current_section' => 'product-management',
-        'current_subsection' => 'index'
-    ];
-    require_once __DIR__ . "/../src/views/admin/index.php";
+$this->router->post('/admin/product-management/edit', function() use($productController) {
+    $productId = isset($_GET['id']) ? (int)$_GET['id'] : null;
+    if ($productId == null) {
+        header('Location: ' . ROOT_URL . '/admin/product-management/index');
+        exit;
+    }
+    $productController->editProduct($productId, $_POST, $_FILES);
+});
+
+$this->router->post('/admin/product-management/delete', function() use($productController) {
+    $productId = isset($_GET['id']) ? (int)$_GET['id'] : null;
+    if ($productId == null) {
+        header('Location: ' . ROOT_URL . '/admin/product-management/index');
+        exit;
+    }
+    $productController->deleteProduct($productId);
 });
 
 $this->router->get('/admin/product-management/add', function() use($productController) {
     $data = [
         'current_section' => 'product-management',
         'current_subsection' => 'add'
+    ];
+    require_once __DIR__ . "/../src/views/admin/index.php";
+});
+
+$this->router->get('/admin/product-management/view', function() use($productController) {
+    $productId = isset($_GET['id']) ? (int)$_GET['id'] : null;
+    if ($productId == null) {
+        header('Location: ' . ROOT_URL . '/admin/product-management/index');
+        exit;
+    }
+    $productData = $productController->getProductDetails($productId);
+
+    $data = [
+        'current_section' => 'product-management',
+        'current_subsection' => 'view'
+    ];
+    require_once __DIR__ . "/../src/views/admin/index.php";
+});
+
+$this->router->get('/admin/product-management/index', function() use($productController) {
+    $productData = $productController->getAllProducts();
+    $data = [
+        'current_section' => 'product-management',
+        'current_subsection' => 'index'
     ];
     require_once __DIR__ . "/../src/views/admin/index.php";
 });

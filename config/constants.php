@@ -62,6 +62,10 @@
                 [
                     "name" => "Add Product",
                     "url" => "add"
+                ],
+                [
+                    "name" => "View Product Details",
+                    "url" => "view"
                 ]
             ],
         ],
