@@ -31,7 +31,7 @@
             spinner.classList.remove('d-none');
             buttonText.textContent = 'Loading...';
 
-            fetch(`<?php echo ROOT_URL;?>/newest-products?page=${currentPage}`, {
+            fetch(`<?php echo ROOT_URL;?>/products/newest?page=${currentPage}`, {
                 method: 'GET'
             })
             .then(response => response.json())

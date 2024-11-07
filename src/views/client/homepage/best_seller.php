@@ -80,7 +80,7 @@
     var hasMoreBest = true;
 
     function generateStarRating(rating) {
-        if (!rating) {
+        if (!rating || rating < 0.5) {
             return `<small class="text-muted ms-1">No reviews yet</small>`;
         }
 
@@ -94,7 +94,7 @@
                 starsHtml += '<i class="bi bi-star"></i>';
             }
         }
-        starsHtml += `<small class="text-muted ms-1">${rating}</small>`;
+        starsHtml += `<small class="text-muted ms-1">${Math.round(rating * 10) / 10}</small>`;
         return starsHtml;
     }
 
@@ -113,11 +113,11 @@
         img.src = `<?php echo ROOT_URL;?>/${product.image[0]}`;
         img.alt = product.product_name;
         title.textContent = product.product_name;
-        rating.innerHTML = generateStarRating(product.rating);
+        rating.innerHTML = generateStarRating(product.average_rating);
         price.textContent = `$${product.price}`;
 
         card.addEventListener('click', () => {
-            window.location.href = `<?php echo ROOT_URL;?>/product/view?product=${convertToSlug(product.product_name)}&id=${product.id}`;
+            window.location.href = `<?php echo ROOT_URL;?>/products/view?product=${convertToSlug(product.product_name)}&id=${product.id}`;
         });
 
         return productCard;
@@ -126,7 +126,7 @@
     function convertToSlug(productName) {
         let slug = productName.toLowerCase();
         slug = slug.replace(/\s+/g, '-');
-        slug = slug.replace(/[^a-z0-9\-.\#]/g, '');
+        slug = slug.replace(/[^a-z0-9\-\.]/g, '');
         return slug;
     }
 
@@ -144,7 +144,7 @@
             spinner.classList.remove('d-none');
             buttonText.textContent = 'Loading...';
 
-            fetch(`<?php echo ROOT_URL;?>/bestseller-products?page=${currentBestSellerPage}`, {
+            fetch(`<?php echo ROOT_URL;?>/products/bestseller?page=${currentBestSellerPage}`, {
                 method: 'GET'
             })
             .then(response => response.json())

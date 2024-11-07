@@ -48,6 +48,10 @@
     ];
 ?>
 
+<script>
+    document.title = "Customer Management";
+</script>
+
 <div class="container-fluid py-4">
     <!-- search -->
     <div class="row mb-4">

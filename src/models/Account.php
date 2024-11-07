@@ -7,7 +7,7 @@ class Account {
         $this->db = $db;
     }
 
-    public function create($email, $hashedPassword, $role = 'client') {
+    public function save($email, $hashedPassword, $role = 'client') {
         $stmt = $this->db->prepare("INSERT INTO accounts (email, password, role) VALUES (?, ?, ?)");
         return $stmt->execute([$email, $hashedPassword, $role]);
     }

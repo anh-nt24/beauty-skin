@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row w-100 d-flex align-items-center">
             <div class="col-md-5">
-                <div class="navbar-header">
+                <div class="navbar-header" style="cursor: pointer;" onclick="navigateHome()">
                     <div class="d-flex flex-row align-items-center">
                         <img src="<?php echo ROOT_URL . "/public/images/logo.png" ?>" class="header__web-logo" alt="logo">
     
@@ -44,7 +44,10 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="/profile">Profile</a>
+                                    <a class="dropdown-item" href="<?php echo ROOT_URL?>/profile">Profile</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="<?php echo ROOT_URL?>/orders/history">Orders History</a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="<?php echo ROOT_URL . '/logout'?>">Logout <i class="fa fa-sign-out"></i> </a>
@@ -85,7 +88,7 @@
 
 <?php include_once __DIR__ . '/cart_dialog.php' ?>
 
-<div class="header-remove-space" style="height:135px"></div>
+<div class="header-remove-space" style="height:130px"></div>
 
 <!-- cart -->
 <script>
@@ -104,7 +107,7 @@
         if (cart) {
             try {
                 const cartItems = JSON.parse(cart);
-                itemCount = Object.values(cartItems).reduce((total, quantity) => total + quantity, 0);
+                itemCount = Object.keys(cartItems).length;
             } catch (error) {
                 console.error("Error parsing cart cookie:", error);
             }
@@ -126,8 +129,13 @@
     }
 </script>
 
-<!-- hide header -->
+<!-- header -->
 <script>
+    // navigate home
+    function navigateHome() {
+        window.location.href = '<?php echo ROOT_URL?>/'
+    }
+
     // track scroll position and mouse position
     const header = document.getElementById("header");
     const specificPosition = 200;

@@ -7,6 +7,10 @@ $total_products = count($productData);
 
 ?>
 
+<script>
+    document.title = "Product Management";
+</script>
+
 <div class="container-fluid px-4">
     <!-- search -->
     <div class="card mb-4 border-0 shadow-sm">
@@ -156,14 +160,5 @@ $total_products = count($productData);
     </div>
 
     <script>
-        function viewProduct(id) {
-            console.log('View product:', id);
-        }
-
-        function deleteProduct(id) {
-            if (confirm('Are you sure you want to delete this product?')) {
-                console.log('Delete product:', id);
-            }
-        }
     </script>
 </div>

@@ -1,10 +1,12 @@
 <?php
 
+require_once __DIR__ . "/../models/Product.php";
+
 class ProductController {
-    private $db;
+    private $productModel;
 
     public function __construct($database) {
-        $this->db = $database;
+        $this->productModel = new Product($database);
     }
 
     public function addProduct($postData, $fileData) {
@@ -38,8 +40,7 @@ class ProductController {
 
 
             // save
-            $product = new Product($this->db);
-            $success = $product->save([
+            $success = $this->productModel->save([
                 'product_name' => $productName,
                 'description' => $description,
                 'price' => $price,
@@ -62,8 +63,7 @@ class ProductController {
     }
 
     public function getAllProducts() {
-        $productModel = new Product($this->db);
-        $productData = $productModel->findAll();
+        $productData = $this->productModel->findAll();
         foreach ($productData as &$product) {
             $images = explode(';', $product['image']);
             $product['image'] = $images;
@@ -75,8 +75,7 @@ class ProductController {
         $productsPerPage = 4;
         $offset = ($page - 1) * $productsPerPage;
 
-        $productModel = new Product($this->db);
-        $products = $productModel->findNewest($productsPerPage, $offset);
+        $products = $this->productModel->findNewest($productsPerPage, $offset);
 
         foreach ($products as &$product) {
             $images = explode(';', $product['image']);
@@ -92,8 +91,7 @@ class ProductController {
         $productsPerPage = 4;
         $offset = ($page - 1) * $productsPerPage;
 
-        $productModel = new Product($this->db);
-        $products = $productModel->findBestSeller($productsPerPage, $offset);
+        $products = $this->productModel->findBestSeller($productsPerPage, $offset);
 
         foreach ($products as &$product) {
             $images = explode(';', $product['image']);
@@ -103,5 +101,9 @@ class ProductController {
         $hasMore = count($products) === $productsPerPage;
         header('Content-Type: application/json');
         echo json_encode(['products' => $products, 'hasMore' => $hasMore]);
+    }
+
+    public function getProductDetails($productId) {
+        return $this->productModel->findProductDetailsById($productId);
     }
 }

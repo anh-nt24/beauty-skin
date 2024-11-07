@@ -13,10 +13,14 @@
     define('ROLE_ADMIN', 'admin');
     define('ROLE_CLIENT', 'client');
     
+    define('STATE_0', 'Cancel');
     define('STATE_1', 'Pending');
     define('STATE_2', 'Ready');
-    define('STATE_3', 'Delivered');
+    define('STATE_3', 'Delivering');
     define('STATE_4', 'Completed');
+    define('STATE_5', 'Return');
+    define('STATE_5_0', 'NotRefund');
+    define('STATE_5_1', 'Refund');
 
     define('CATEGORIES', [
         'Lipstick',
@@ -40,6 +44,10 @@
                 [
                     "name" => "Return/Refund",
                     "url" => "return"
+                ],
+                [
+                    "name" => "Shipping Service",
+                    "url" => "shipping"
                 ]
             ],
         ],

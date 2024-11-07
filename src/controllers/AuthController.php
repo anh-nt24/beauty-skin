@@ -5,10 +5,14 @@ require_once __DIR__ . "/../models/Account.php";
 require_once __DIR__ . "/../models/Admin.php";
 
 class AuthController {
-    private $db;
+    private $account;
+    private $customer;
+    private $admin;
 
     public function __construct($db) {
-        $this->db = $db;
+        $this->account = new Account($db);
+        $this->customer = new Customer($db);
+        $this->admin = new Admin($db);
     }
 
     public function register() {
@@ -21,15 +25,14 @@ class AuthController {
 
 
             // insert user into the account table
-            $account = new Account($this->db);
+            
 
-            if ($account->create($email, $password)) {
-                $accountData = $account->findByEmail($email);
+            if ($this->account->save($email, $password)) {
+                $accountData = $this->account->findByEmail($email);
                 if ($accountData && isset($accountData['id'])) {
                     
                     // insert into customers table
-                    $customer = new Customer($this->db);
-                    if ($customerId = $customer->create($name, $phone, $address, $accountData['id'])) {
+                    if ($customerId = $this->customer->save($name, $phone, $address, $accountData['id'])) {
                         echo json_encode([
                             "status" => 200,
                             "message" => "Registration successful",
@@ -75,17 +78,12 @@ class AuthController {
             $password = $_POST['password'];
 
             // fetch user from the account table
-            $stmt = $this->db->prepare("SELECT * FROM accounts WHERE email = ?");
-            $stmt->execute([$email]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            
+            $user = $this->account->findByEmail($email);           
 
             if ($user && password_verify($password, $user['password'])) {
                 // successful login
                 if ($user['role'] === ROLE_CLIENT) {
-                    $customer = new Customer($this->db);
-                    $customerData = $customer->getCustomerByAccountId($user['id']);
+                    $customerData = $this->customer->findByAccountId($user['id']);
                     echo json_encode([
                         "status" => 200,
                         "message" => "Login successful",
@@ -93,12 +91,12 @@ class AuthController {
                             "id" => $customerData['id'],
                             "name" => $customerData['name'],
                             "email" => $email,
+                            "address" => $customerData['address'],
                             "role" => $user['role']
                         ]
                     ]);
                 } else {
-                    $admin = new Admin($this->db);
-                    $adminData = $admin->getAdminByAccountId($user['id']);
+                    $adminData = $this->admin->findByAccountId($user['id']);
                     echo json_encode([
                         "status" => 200,
                         "message" => "Login successful",
@@ -125,5 +123,22 @@ class AuthController {
                 "message" => "Invalid request method"
             ]);
         }
+    }
+
+    public function logout() {
+        if (isset($_COOKIE['user'])) {
+            setcookie('user', '', time() - 3600, '/');
+        }
+    
+        if (isset($_COOKIE['cart'])) {
+            setcookie('cart', '', time() - 3600, '/');
+        }
+    
+        session_start();
+        session_unset();
+        session_destroy();
+    
+        header('Location: ' . ROOT_URL);
+        exit();
     }
 }

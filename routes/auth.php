@@ -13,15 +13,6 @@ $this->router->post('/login', function() use ($authController) {
     $authController->login();
 });
 
-$this->router->get('/logout', function() {
-    if (isset($_COOKIE['user'])) {
-        setcookie('user', '', time() - 3600, '/');
-    }
-
-    session_start();
-    session_unset();
-    session_destroy();
-
-    header('Location: ' . ROOT_URL);
-    exit();
+$this->router->get('/logout', function() use ($authController) {
+    $authController->logout();
 });

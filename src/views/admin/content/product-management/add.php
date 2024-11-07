@@ -1,3 +1,7 @@
+<script>
+    document.title = "Add New Products";
+</script>
+
 <div class="container-fluid px-4">
     <div class="row justify-content-center">
         <div class="col-lg-12">

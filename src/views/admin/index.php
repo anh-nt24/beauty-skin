@@ -8,7 +8,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
     <link rel="icon" type="image/x-icon" href="<?php echo ROOT_URL . "/public/images/browser-logo.ico" ?>">
 
     <!-- bootstrap -->
@@ -96,7 +95,6 @@
                 <?php
                     // Construct the path to the content file
                     $content_path = __DIR__ . "/content/{$current_section}/{$current_subsection}.php";
-                    
                     if (file_exists($content_path)) {
                         include $content_path;
                     } else {

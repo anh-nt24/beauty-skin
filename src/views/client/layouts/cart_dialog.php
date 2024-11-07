@@ -27,6 +27,7 @@
     </div>
 </div>
 
+
 <!-- cart -->
 <script>
     function handleBackdropClick(event) {
@@ -37,7 +38,7 @@
     
     // update quantity
     function updateQuantity(index, change, newValue = null) {
-        let cartData = JSON.parse(getCookie('cart') || '[]');
+        let cartData = Object.values(JSON.parse(getCookie('cart') || '[]'));
         
         if (newValue !== null) {
             cartData[index].quantity = Math.max(1, parseInt(newValue));
@@ -57,7 +58,7 @@
     }
 
     function updateTotal() {
-        const cartData = JSON.parse(getCookie('cart') || '[]');
+        const cartData = Object.values(JSON.parse(getCookie('cart') || '[]'));
         const totalAmount = document.getElementById('totalAmount');
         let total = 0;
 
@@ -71,11 +72,15 @@
     }
 
 
+    var checkout = null;
     function placeOrder() {
         const selectedItems = [];
+        let cartData = JSON.parse(document.cookie.split('; ').find(row => row.startsWith('cart='))?.split('=')[1] || '{}');
+        const cartArr = Object.values(cartData);
+
         document.querySelectorAll('.item-checkbox').forEach((checkbox, index) => {
             if (checkbox.checked) {
-                selectedItems.push(index);
+                selectedItems.push(cartArr[index]);
             }
         });
 
@@ -83,13 +88,29 @@
             alert('Please select at least one item to place order');
             return;
         }
+        
+        checkout = selectedItems;
 
-        console.log('Placing order for selected items:', selectedItems);
+        selectedItems.forEach(item => {
+            delete cartData[item.id];
+        });
+
+        document.cookie = `cart=${JSON.stringify(cartData)}; path=/; max-age=${365 * 24 * 60 * 60}`;
+
+
+        const checkoutModal = new bootstrap.Modal(document.getElementById('checkoutModal'), {
+            keyboard: true
+        });
+        checkoutModal.show();
     }
+
 </script>
 
 <!-- card contents -->
 <script>
+
+    var checkout = null;
+
     function loadCart() {
         const cartContent = document.getElementById('cartContent');
         const userCookie = getCookie('user');
@@ -110,7 +131,7 @@
         }
 
         // get cart data from cookie
-        const cartData = JSON.parse(getCookie('cart') || '[]');
+        let cartData = JSON.parse(getCookie('cart') || '[]');
         
         if (cartData.length === 0) {
             cartContent.innerHTML = `
@@ -123,24 +144,28 @@
             return;
         }
 
+
         // render cart items
-        cartContent.innerHTML = `
+        let html = `
             <div class="p-3">
                 <div class="form-check mb-3">
                     <input class="form-check-input" type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
                     <label class="form-check-label" for="selectAll">Select All Items</label>
                 </div>
-                ${cartData.map((item, index) => `
-                    <div onclick="viewDetails(${item.id}, '${item.name}')" class="cart-item border-bottom py-3">
+        `;
+        
+        Object.values(cartData).map((item, index) => {
+            html += `
+                    <div class="cart-item border-bottom py-3">
                         <div class="d-flex gap-3">
                             <div class="form-check">
                                 <input class="form-check-input item-checkbox" type="checkbox" 
                                        value="${item.id}" onchange="updateTotal()">
                             </div>
-                            <img src="/images/${item.image}" class="cart-product-img rounded" alt="${item.name}">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">${item.name}</h6>
-                                <div class="text-primary mb-2">$${item.price.toFixed(2)}</div>
+                            <img onclick="viewDetails(${item.id}, '${item.product_name}')" src="${item.image}" class="cart-product-img rounded" alt="${item.product_name}">
+                            <div class="flex-grow-1" onclick="viewDetails(${item.id}, '${item.product_name}')">
+                                <h6 class="mb-1">${item.product_name}</h6>
+                                <div class="text-danger mb-2">$${item.price}</div>
                                 <div class="quantity-control d-flex gap-2 align-items-center">
                                     <button class="btn btn-outline-secondary btn-quantity" 
                                             onclick="updateQuantity(${index}, -1)">
@@ -157,12 +182,21 @@
                             </div>
                         </div>
                     </div>
-                `).join('')}
-            </div>
-        `;
+                `;
+        });
+
+        html += `</div>`;
+        cartContent.innerHTML = html;
     }
 
     function viewDetails(id, name) {
-        window.location.href = `<?php echo ROOT_URL;?>/product/view?product=${convertToSlug(name)}&id=${id}`
+        window.location.href = `<?php echo ROOT_URL;?>/products/view?product=${convertToSlug(name)}&id=${id}`
+    }
+
+    function convertToSlug(productName) {
+        let slug = productName.toLowerCase();
+        slug = slug.replace(/\s+/g, '-');
+        slug = slug.replace(/[^a-z0-9\-.\#]/g, '');
+        return slug;
     }
 </script>

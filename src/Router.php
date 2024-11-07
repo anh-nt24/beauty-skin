@@ -24,6 +24,14 @@ class Router {
         $this->routes['POST'][$path] = $callback;
     }
 
+    public function put($path, $callback) {
+        $this->routes['PUT'][$path] = $callback;
+    }
+
+    public function delete($path, $callback) {
+        $this->routes['DELETE'][$path] = $callback;
+    }
+
     public function resolve() {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
         $requestUri = str_replace("/beauty-skin", "", $_SERVER['REQUEST_URI']);

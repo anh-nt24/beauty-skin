@@ -79,14 +79,24 @@ class Database {
                 image VARCHAR(2048)
             );
 
+            CREATE TABLE IF NOT EXISTS shipping_services (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                name VARCHAR(255) NOT NULL,
+                description VARCHAR(1000) NOT NULL,
+                price DECIMAL(10, 2) NOT NULL
+            );
+
             CREATE TABLE IF NOT EXISTS orders (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 customer_id INT NOT NULL,
+                shipping_id INT NOT NULL,
                 order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                 shipping_address TEXT NOT NULL,
                 total_amount DECIMAL(10, 2) NOT NULL,
-                order_status ENUM('" . STATE_1 . "', '" . STATE_2 . "', '" . STATE_3 . "', '" . STATE_4 . "') DEFAULT '" . STATE_1 . "',
-                FOREIGN KEY (customer_id) REFERENCES customers(id)
+                order_status ENUM('" . STATE_0 . "', '" . STATE_1 . "', '" . STATE_2 . "', '" . STATE_3 . "', '" . STATE_4 . "', '" . STATE_5 . "') DEFAULT '" . STATE_1 . "',
+                note TEXT,
+                FOREIGN KEY (customer_id) REFERENCES customers(id),
+                FOREIGN KEY (shipping_id) REFERENCES shipping_services(id)
             );
 
             CREATE TABLE IF NOT EXISTS order_details (
@@ -133,14 +143,14 @@ class Database {
         $account = new Account($this->connection);
 
         if (!$account->findByEmail($email)) {
-            $result = $account->create($email, $password, $role);
+            $result = $account->save($email, $password, $role);
                 
             if ($result) {
                 $accountId = $account->findByEmail($email)["id"];
 
                 // insert into customers table
                 $admin = new Admin($this->connection);
-                $admin->create("Admin", $accountId);
+                $admin->save("Admin", $accountId);
             }
         }
     }

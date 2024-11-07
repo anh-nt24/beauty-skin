@@ -1,9 +1,12 @@
 <?php
 
 $currentPath = strtok($_SERVER["REQUEST_URI"], '?');
-$currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
 $totalOrders = count($orderData);
 ?>
+
+<script>
+    document.title = "Order Management";
+</script>
 
 <div class="container-fluid px-4">
     <!-- search -->
@@ -39,10 +42,11 @@ $totalOrders = count($orderData);
         <?php
         $tabs = [
             'all' => ['name' => 'All', 'icon' => 'grid'],
-            'pending' => ['name' => 'In Progress', 'icon' => 'clock-history'],
-            'ready' => ['name' => 'Ready', 'icon' => 'box-seam'],
-            'delivered' => ['name' => 'Delivered', 'icon' => 'truck'],
-            'completed' => ['name' => 'Completed', 'icon' => 'check-circle']
+            strtolower(STATE_1) => ['name' => 'In Progress', 'icon' => 'clock-history'],
+            strtolower(STATE_2) => ['name' => 'Ready', 'icon' => 'box-seam'],
+            strtolower(STATE_3) => ['name' => 'Delivering', 'icon' => 'truck'],
+            strtolower(STATE_4) => ['name' => 'Completed', 'icon' => 'check-circle'],
+            strtolower(STATE_0) => ['name' => 'Cancel', 'icon' => 'calendar2-x'],
         ];
 
         foreach ($tabs as $tabKey => $tab) {
@@ -77,7 +81,7 @@ $totalOrders = count($orderData);
                             <th class="col-4 ">Products</th>
                             <th class="col-1 ">Total</th>
                             <th class="col-2 ">State</th>
-                            <th class="col-2 px-4">Action</th>
+                            <th id="actOrNote" class="col-2 px-4">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -96,7 +100,7 @@ $totalOrders = count($orderData);
                                             <span class="badge bg-light text-dark me-2">
                                                 <?php echo $product['quantity']; ?>x
                                             </span>
-                                            <?php echo htmlspecialchars($product['name']); ?>
+                                            <?php echo htmlspecialchars($product['product_name']); ?>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -120,18 +124,30 @@ $totalOrders = count($orderData);
                             </td>
                             <td class="col-2 px-4">
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-light btn-sm" title="View Details">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-light btn-sm" title="Order Ready">
-                                        <i class="bi bi-patch-check text-success"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-light btn-sm" title="Order Rejected">
-                                        <i class="bi bi-patch-minus text-danger"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-light btn-sm" title="Print Invoice">
-                                        <i class="bi bi-printer"></i>
-                                    </button>
+                                    <!-- status: pending -->
+                                    <?php if ($order['state'] === STATE_1): ?>
+                                        <button onclick="updateReady(<?php echo $order['id']; ?>)" type="button" class="btn btn-light btn-sm" title="Order Ready">
+                                            <i class="bi bi-patch-check text-success"></i>
+                                        </button>
+                                        <button onclick="updateReject(<?php echo $order['id']; ?>)" type="button" class="btn btn-light btn-sm" title="Order Rejected">
+                                            <i class="bi bi-patch-minus text-danger"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-light btn-sm" title="Print Invoice">
+                                            <i class="bi bi-printer"></i>
+                                        </button>
+                                    
+                                    <!-- status: ready -->
+                                    <?php elseif ($order['state'] === STATE_2): ?>
+                                        <button onclick="updateDelivering(<?php echo $order['id']; ?>)" type="button" class="btn btn-light btn-sm" title="Sent for Shipping">
+                                            <i class="bi bi-patch-check text-success"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-light btn-sm" title="Print Invoice">
+                                            <i class="bi bi-printer"></i>
+                                        </button>
+                                    <!-- status: cancel -->
+                                    <?php elseif ($order['state'] === STATE_0 || $order['state'] === STATE_4): ?>
+                                        <span><?php echo $order['note'];?></span>
+                                    <?php endif;?>
                                 </div>
                             </td>
                         </tr>
@@ -153,3 +169,55 @@ $totalOrders = count($orderData);
         </div>
     </div>
 </div>
+
+<script>
+    document.querySelector('#actOrNote').textContent = <?php echo ($currentTab === strtolower(STATE_0)) ? "'Reason'" : "'Action'"; ?>;
+
+    function updateReady(id) {
+        fetch(`<?php echo ROOT_URL;?>/admin/order-management/accept-order?id=${id}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert("Error updating order status.");
+            }
+        });
+    }
+
+    function updateDelivering(id) {
+        fetch(`<?php echo ROOT_URL;?>/admin/order-management/ready-order?id=${id}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert("Error updating order status.");
+            }
+        });
+    }
+
+    function updateReject(id) {
+        const reason = prompt("Please enter the reason for rejection:");
+
+        if (reason) {
+            fetch(`<?php echo ROOT_URL;?>/admin/order-management/reject-order?id=${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason: '[ADMIN]: ' + reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert("Error updating order status.");
+                }
+            });
+        }
+    }
+</script>

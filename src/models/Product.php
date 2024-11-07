@@ -50,7 +50,7 @@ class Product {
         $stmt = $this->db->prepare("
             SELECT 
                 p.id, p.product_name, p.description, p.price, p.category, p.stock, p.image,
-                IFNULL(AVG(r.rating), 0) AS average_rating,
+                IFNULL(AVG(r.rating), 5) AS average_rating,
                 SUM(od.quantity) AS total_quantity_sold
             FROM products p
             LEFT JOIN order_details od ON p.id = od.product_id
@@ -65,6 +65,65 @@ class Product {
 
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function findProductDetailsById($productId) {
+        // query product
+        $stmt = $this->db->prepare("
+            SELECT id, product_name, description, price, stock, image
+            FROM products
+            WHERE id = ?
+        ");
+        $stmt->execute([$productId]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        if (!$product) {
+            return null;
+        }
+        $product['image'] = explode(';', $product['image']);
+    
+        // query rating
+        $ratingStmt = $this->db->prepare("
+            SELECT AVG(rating) AS average_rating, COUNT(*) AS rating_count
+            FROM product_reviews
+            WHERE product_id = ?
+        ");
+        $ratingStmt->execute([$productId]);
+        $ratingData = $ratingStmt->fetch(PDO::FETCH_ASSOC);
+        
+        $product['average_rating'] = $ratingData['average_rating'] ?? 5;
+        $product['rating_count'] = $ratingData['rating_count'] ?? 0;
+    
+        // query purchases
+        $purchasesStmt = $this->db->prepare("
+            SELECT SUM(quantity) AS purchases
+            FROM order_details
+            WHERE product_id = ?
+        ");
+        $purchasesStmt->execute([$productId]);
+        $purchasesData = $purchasesStmt->fetch(PDO::FETCH_ASSOC);
+    
+        $product['purchases'] = $purchasesData['purchases'] ?? 0;
+    
+        return $product;
+    }
+    
+    public function decreaseStock($productId, $quantity) {
+        $stmt = $this->db->prepare("
+            UPDATE products
+            SET stock = stock - ?
+            WHERE id = ? AND stock >= ?
+        ");
+        return $stmt->execute([$quantity, $productId, $quantity]);
+    }
+
+    public function increaseStock($productId, $quantity) {
+        $stmt = $this->db->prepare("
+            UPDATE products
+            SET stock = stock + ?
+            WHERE id = ?
+        ");
+        return $stmt->execute([$quantity, $productId]);
     }
     
 }
