@@ -1,53 +1,3 @@
-<?php
-    $customersData = [
-        [
-            'id' => 'C001',
-            'name' => 'John Doe',
-            'phone' => '0123456789',
-            'address' => '123 Main St, City Name, Country',
-            'reg_date' => '2024-01-15',
-            'total_orders' => 25,
-            'success_rate' => 92
-        ],
-        [
-            'id' => 'C002',
-            'name' => 'Jane Smith',
-            'phone' => '0987654321',
-            'address' => '456 Oak Avenue, Town Name, Country',
-            'reg_date' => '2024-02-01',
-            'total_orders' => 18,
-            'success_rate' => 88
-        ],
-        [
-            'id' => 'C003',
-            'name' => 'Robert Johnson',
-            'phone' => '0123498765',
-            'address' => '789 Pine Road, Village Name, Country',
-            'reg_date' => '2024-02-20',
-            'total_orders' => 7,
-            'success_rate' => 10
-        ],
-        [
-            'id' => 'C004',
-            'name' => 'Mary Williams',
-            'phone' => '0456789123',
-            'address' => '321 Elm Street, City Name, Country',
-            'reg_date' => '2024-03-05',
-            'total_orders' => 12,
-            'success_rate' => 75
-        ],
-        [
-            'id' => 'C005',
-            'name' => 'David Brown',
-            'phone' => '0789123456',
-            'address' => '654 Maple Lane, Town Name, Country',
-            'reg_date' => '2024-03-15',
-            'total_orders' => 5,
-            'success_rate' => 80
-        ]
-    ];
-?>
-
 <script>
     document.title = "Customer Management";
 </script>
@@ -58,7 +8,7 @@
         <div class="col-md-6">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <form action="" method="GET" class="d-flex gap-2">
+                    <div class="d-flex gap-2">
                         <div class="flex-grow-1">
                             <div class="input-group">
                                 <span class="input-group-text bg-white">
@@ -66,15 +16,12 @@
                                 </span>
                                 <input type="text" class="form-control" 
                                         placeholder="Search by phone number..." 
-                                        name="phone" 
-                                        value="<?php echo isset($_GET['phone']) ? htmlspecialchars($_GET['phone']) : ''; ?>">
+                                        name="phone">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Search</button>
-                        <?php if(isset($_GET['phone'])): ?>
-                            <a href="?" class="btn btn-outline-secondary">Clear</a>
-                        <?php endif; ?>
-                    </form>
+                        <button id="searchCustomerButton" type="button" class="btn btn-primary">Search</button>
+                        <button id="resetCustomerButton" class="btn btn-outline-secondary">Clear</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -92,7 +39,7 @@
     <div class="card shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table id="customerTableData" class="table table-hover mb-0">
                     <thead class="bg-light">
                         <tr>
                             <th>ID</th>
@@ -146,3 +93,30 @@
         </div>
     </div>
 </div>
+
+<script>
+    const phoneInput = document.querySelector('input[name="phone"]');
+    const customerTableData = document.getElementById('customerTableData');
+
+    phoneInput.addEventListener('input', function() {
+        const phoneNumber = this.value.trim();
+        filterCustomerTable(phoneNumber);
+    });
+
+    function filterCustomerTable(phoneNumber) {
+        const tableRows = customerTableData.getElementsByTagName('tr');
+
+        for (let i = 0; i < tableRows.length; i++) {
+            const row = tableRows[i];
+            const phoneCol = row.getElementsByTagName('td')[2];
+            if (phoneCol) {
+                const rowPhoneNumber = phoneCol.textContent.trim();
+                if (rowPhoneNumber.includes(phoneNumber)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+    }
+</script>

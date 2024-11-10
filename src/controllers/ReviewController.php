@@ -17,10 +17,11 @@ class ReviewController {
             $success = true;
             foreach ($data as $reviewData) {
                 $productId = $reviewData['productId'];
+                $orderId = $reviewData['orderId'];
                 $rating = $reviewData['data']['rate'];
                 $review = $reviewData['data']['comment'];
     
-                if (!$this->reviewModel->save($customerId, $productId, $rating, $review)) {
+                if (!$this->reviewModel->save($customerId, $productId, $orderId, $rating, $review)) {
                     $success = false;
                     break;
                 }
@@ -38,4 +39,18 @@ class ReviewController {
             echo json_encode(['success' => false, 'message' => 'Invalid data or customer ID']);
         }
     }
+
+    public function getRatingDashboard($filters) {
+        $stats = $this->reviewModel->getStatistics();
+        $reviews = $this->reviewModel->getReviews($filters);
+        
+        return [
+            'stats' => $stats,
+            'reviews' => $reviews
+        ];
+    }
+
+    public function getReviewsByProductId($productId) {
+        return $this->reviewModel->findByProductId($productId);
+    } 
 }

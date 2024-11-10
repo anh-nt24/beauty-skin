@@ -90,7 +90,7 @@ class Product {
         $stmt = $this->db->prepare("
             SELECT 
                 p.id, p.product_name, p.description, p.price, p.category, p.stock, p.image,
-                IFNULL(AVG(r.rating), 5) AS average_rating,
+                IFNULL(AVG(r.rating), 0) AS average_rating,
                 SUM(od.quantity) AS total_quantity_sold
             FROM products p
             LEFT JOIN order_details od ON p.id = od.product_id
@@ -132,7 +132,7 @@ class Product {
         $ratingStmt->execute([$productId]);
         $ratingData = $ratingStmt->fetch(PDO::FETCH_ASSOC);
         
-        $product['average_rating'] = $ratingData['average_rating'] ?? 5;
+        $product['average_rating'] = $ratingData['average_rating'] ?? 0;
         $product['rating_count'] = $ratingData['rating_count'] ?? 0;
     
         // query purchases
@@ -165,6 +165,139 @@ class Product {
             WHERE id = ?
         ");
         return $stmt->execute([$quantity, $productId]);
+    }
+
+    // search and filter
+    public function search(array $params): array {
+        $query = "SELECT p.* FROM products p WHERE 1=1 AND p.stock > 0";
+        $parameters = [];
+        
+        // search query
+        if (!empty($params['query'])) {
+            $query .= " AND (p.product_name LIKE ? OR p.description LIKE ?)";
+            $parameters[] = '%' . $params['query'] . '%';
+            $parameters[] = '%' . $params['query'] . '%';
+        }
+        
+        // category filter
+        if (!empty($params['categories'])) {
+            $placeholders = str_repeat('?,', count($params['categories']) - 1) . '?';
+            $query .= " AND p.category IN ($placeholders)";
+            $parameters = array_merge($parameters, $params['categories']);
+        }
+        
+        // price level filter
+        if (!empty($params['priceLevels'])) {
+            $priceConditions = [];
+            foreach ($params['priceLevels'] as $levelId) {
+                $level = PRICE_LEVELS[$levelId];
+                if ($level['max'] === null) {
+                    $priceConditions[] = "p.price >= " . $level['min'];
+                } else {
+                    $priceConditions[] = "(p.price >= " . $level['min'] . " AND p.price < " . $level['max'] . ")";
+                }
+            }
+            $query .= " AND (" . implode(" OR ", $priceConditions) . ")";
+        }
+        
+        // sorting
+        switch ($params['sort']) {
+            case 'price_asc':
+                $query .= " ORDER BY p.price ASC";
+                break;
+            case 'price_desc':
+                $query .= " ORDER BY p.price DESC";
+                break;
+            case 'newest':
+            default:
+                $query .= " ORDER BY p.id DESC";
+                break;
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $result = $stmt->execute($parameters);
+            
+            if (!$result) {
+                $errorInfo = $stmt->errorInfo();
+                throw new Exception("SQL error: " . $errorInfo[2]);
+            }
+            
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($products as &$product) {
+                $images = explode(';', $product['image']);
+                $product['image'] = $images;
+                $ratingStmt = $this->db->prepare("
+                    SELECT AVG(rating) AS average_rating, COUNT(*) AS rating_count
+                    FROM product_reviews
+                    WHERE product_id = ?
+                ");
+                $ratingStmt->execute([$product['id']]);
+                $ratingData = $ratingStmt->fetch(PDO::FETCH_ASSOC);
+                
+                $product['average_rating'] = $ratingData['average_rating'] ?? 0;
+            }
+
+            return $products;
+        } catch (Exception $e) {
+            print_r($e->getMessage());
+            error_log("Search error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    public function findCategoryCounts(string $searchQuery = ''): array {
+        $query = "SELECT p.category, COUNT(*) as count 
+                 FROM products p 
+                 WHERE 1=1 AND p.stock > 0";
+        $parameters = [];
+        
+        if (!empty($searchQuery)) {
+            $query .= " AND (p.product_name LIKE :query OR p.description LIKE :query)";
+            $parameters[':query'] = '%' . $searchQuery . '%';
+        }
+        
+        $query .= " GROUP BY p.category";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($parameters);
+        
+        $counts = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $counts[$row['category']] = $row['count'];
+        }
+        
+        return $counts;
+    }
+    
+    public function findPriceLevelCounts(string $searchQuery = ''): array {
+        $counts = [];
+        foreach (PRICE_LEVELS as $levelId => $level) {
+            $query = "SELECT COUNT(*) as count FROM products p WHERE 1=1 AND p.stock > 0";
+            $parameters = [];
+            
+            if (!empty($searchQuery)) {
+                $query .= " AND (p.product_name LIKE :query OR p.description LIKE :query)";
+                $parameters[':query'] = '%' . $searchQuery . '%';
+            }
+            
+            if ($level['max'] === null) {
+                $query .= " AND p.price >= :min";
+                $parameters[':min'] = $level['min'];
+            } else {
+                $query .= " AND p.price >= :min AND p.price < :max";
+                $parameters[':min'] = $level['min'];
+                $parameters[':max'] = $level['max'];
+            }
+            
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($parameters);
+            
+            $counts[$levelId] = $stmt->fetchColumn();
+        }
+        
+        return $counts;
     }
     
 }

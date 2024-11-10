@@ -183,4 +183,30 @@ class ProductController {
     public function getProductDetails($productId) {
         return $this->productModel->findProductDetailsById($productId);
     }
+
+    public function search(array $params) {
+        try {
+            $products = $this->productModel->search($params);
+            
+            // get counts for filter options
+            $categoryCounts = $this->productModel->findCategoryCounts($params['query']);
+            $priceLevelCounts = $this->productModel->findPriceLevelCounts($params['query']);
+            
+            return [
+                'products' => $products,
+                'totalCount' => count($products),
+                'categoryCounts' => $categoryCounts,
+                'priceLevelCounts' => $priceLevelCounts
+            ];
+        } catch (Exception $e) {
+            // Log error
+            error_log("Search error: " . $e->getMessage());
+            return [
+                'products' => [],
+                'totalCount' => 0,
+                'categoryCounts' => [],
+                'priceLevelCounts' => []
+            ];
+        }
+    }
 }

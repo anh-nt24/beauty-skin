@@ -17,10 +17,10 @@
             <div class="col-md-7">
                 <ul class="nav justify-content-end align-items-center w-100">
                     <li class="nav-item flex-grow-1 me-3">
-                        <form class="d-flex w-100">
+                        <form method="get" action="<?php echo ROOT_URL?>/search" class="d-flex w-100">
                             <div class="input-group w-100">
-                                <input type="text" class="form-control" placeholder="What are you looking for?">
-                                <button class="btn btn-outline-secondary" type="button">
+                                <input name="query" type="text" class="form-control" placeholder="What are you looking for?">
+                                <button class="btn btn-outline-secondary" type="submit">
                                     <i class="fa fa-search"></i>
                                 </button>
                             </div>
@@ -44,7 +44,10 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="<?php echo ROOT_URL?>/profile">Profile</a>
+                                    <a class="dropdown-item" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#editProfileModal">Profile</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" style="cursor: pointer;" href="<?php echo ROOT_URL?>/password/change-password">Password</a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="<?php echo ROOT_URL?>/orders/history">Orders History</a>
@@ -77,7 +80,7 @@
             <div class="col-md-12 col-sm-6 col-2">
                 <ul class="header__product-category">
                     <?php foreach (array_slice(CATEGORIES, 0, 5) as $categoryIdx => $data): ?>
-                        <li><a href="" class="normal-href"><?php echo $data; ?></a></li>
+                        <li><a href="<?php echo ROOT_URL?>/search?query=&category%5B%5D=<?php echo str_replace(' ', '+', $data);?>" class="normal-href"><?php echo $data; ?></a></li>
                     <?php endforeach; ?>
                 </ul>
 
@@ -87,6 +90,11 @@
 </nav>
 
 <?php include_once __DIR__ . '/cart_dialog.php' ?>
+<?php 
+    if (isset($_COOKIE['user'])) {
+        include_once __DIR__ . '/view_profile.php';
+    }
+?>
 
 <div class="header-remove-space" style="height:130px"></div>
 
@@ -138,7 +146,7 @@
 
     // track scroll position and mouse position
     const header = document.getElementById("header");
-    const specificPosition = 200;
+    const specificPosition = 150;
 
     window.addEventListener("scroll", () => {
         const scrollTop = window.scrollY;

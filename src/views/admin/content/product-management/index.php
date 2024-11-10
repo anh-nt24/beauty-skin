@@ -4,7 +4,6 @@ $searchName = isset($_GET['name']) ? $_GET['name'] : '';
 $searchCategory = isset($_GET['category']) ? $_GET['category'] : '';
 $total_products = count($productData);
 
-
 ?>
 
 <script>
@@ -15,7 +14,7 @@ $total_products = count($productData);
     <!-- search -->
     <div class="card mb-4 border-0 shadow-sm">
         <div class="card-body">
-            <form method="GET" class="row g-3">
+            <div method="GET" class="row g-3">
                 <input type="hidden" name="section" value="product-management">
                 <input type="hidden" name="subsection" value="index">
                 
@@ -27,8 +26,7 @@ $total_products = count($productData);
                         <input type="text" 
                                class="form-control border-start-0" 
                                placeholder="Search by product name..." 
-                               name="name"
-                               value="<?php echo htmlspecialchars($searchName); ?>">
+                               name="productName">
                     </div>
                 </div>
                 
@@ -40,8 +38,7 @@ $total_products = count($productData);
                         <input type="text" 
                                class="form-control border-start-0" 
                                placeholder="Search by category..." 
-                               name="category"
-                               value="<?php echo htmlspecialchars($searchCategory); ?>">
+                               name="productCategory">
                     </div>
                 </div>
 
@@ -50,7 +47,7 @@ $total_products = count($productData);
                         <i class="bi bi-search"></i> Search
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -71,7 +68,7 @@ $total_products = count($productData);
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table id="productTableData" class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr>
                             <th class="px-4" style="width: 45%">Product</th>
@@ -98,7 +95,7 @@ $total_products = count($productData);
                                             </span>
                                         </div>
                                         <div class="text-muted small">
-                                            <span class="badge bg-light text-dark me-2">
+                                            <span class="product-category badge bg-light text-dark me-2">
                                                 <?php echo htmlspecialchars($product['category']); ?>
                                             </span>
                                         </div>
@@ -179,6 +176,7 @@ $total_products = count($productData);
             const href = `<?php echo ROOT_URL?>/admin/product-management/view?product=${convertToSlug(name)}&id=${id}`;
             window.location.href = href;
         }
+        
         function deleteProduct(id) {
             if (confirm('Are you sure you want to delete this product?')) {
                 fetch(`<?php echo ROOT_URL;?>/admin/product-management/delete?id=${id}`, {
@@ -202,6 +200,32 @@ $total_products = count($productData);
                     console.error('There was a problem with the fetch operation:', error);
                     alert("An error occurred while processing your request.");
                 });
+            }
+        }
+    </script>
+
+    <script>
+        const productNameInp = document.querySelector('input[name="productName"]');
+        const productCategoryInp = document.querySelector('input[name="productCategory"]');
+        const productTableData = document.getElementById('productTableData');
+
+        productNameInp.addEventListener('input', filterProductTable);
+        productCategoryInp.addEventListener('input', filterProductTable);
+
+        function filterProductTable() {
+            const productName = productNameInp.value.toLowerCase().trim();
+            const productCategory = productCategoryInp.value.toLowerCase().trim();
+            const tableRows = productTableData.getElementsByTagName('tr');
+
+            for (let i = 1; i < tableRows.length; i++) {
+                const row = tableRows[i];
+                const productNameCell = row.getElementsByTagName('td')[0].textContent.toLowerCase().trim();
+                const productCategoryCell = row.getElementsByTagName('td')[0].querySelector('.product-category').textContent.toLowerCase().trim();
+                if (productNameCell.includes(productName) && productCategoryCell.includes(productCategory)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
             }
         }
     </script>

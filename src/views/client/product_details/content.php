@@ -110,8 +110,44 @@
         opacity: <?php echo $isLoggedIn ? '1' : '0.6'; ?>;
         pointer-events: <?php echo $isLoggedIn ? 'auto' : 'none'; ?>;
     }
+
+    .stars {
+        font-size: 1.1rem;
+        letter-spacing: 3px;
+    }
+    
+    .review-date {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .review-text {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #4a4a4a;
+    }
 </style>
 
+<?php
+    function generateStarRating($rating) {
+        if (!$rating || $rating < 0.5) {
+            return "<small class='text-muted ms-1'>No reviews yet</small>";
+        }
+
+        $starsHtml = '';
+        for($i = 1; $i <= 5; $i++) {
+            if($rating >= $i) {
+                $starsHtml .= '<i class="bi bi-star-fill"></i>';
+            } else if($rating > $i - 1) {
+                $starsHtml .= '<i class="bi bi-star-half"></i>';
+            } else {
+                $starsHtml .= '<i class="bi bi-star"></i>';
+            }
+        }
+        $starsHtml .= '<small class="text-muted ms-1">' . round($rating, 1) . '</small>';
+        return $starsHtml;
+    }
+?>
 
 <div class="container-fluid p-5 gray-bg">
     <div class="card border-0">
@@ -160,16 +196,8 @@
                 <div class="mb-4">
                     <span class="rating-stars">
                         <?php
-                        $rating = $productData['average_rating'];
-                        for ($i = 1; $i <= 5; $i++) {
-                            if ($i <= $rating) {
-                                echo '<i class="bi bi-star-fill"></i>';
-                            } elseif ($i - 0.5 <= $rating) {
-                                echo '<i class="bi bi-star-half"></i>';
-                            } else {
-                                echo '<i class="bi bi-star"></i>';
-                            }
-                        }
+                            $rating = $productData['average_rating'];
+                            echo generateStarRating($rating);
                         ?>
                     </span>
                     <span class="ms-2 text-muted">
@@ -229,10 +257,48 @@
                 </div>
             </div>
         </div>
-
     </div>
 
-    <div class="mt-3"></div>
+    <?php if (!empty($reviewData)): ?>
+    <div class="card border-0 mt-3">
+        <div class="row white-bg card-body p-4 shadow-sm">
+            <div class="col-12 text-center">
+                <h1 class="display-4 fw-bold mb-0">
+                    <?php 
+                        $avgRating = array_sum(array_column($reviewData, 'rating')) / count($reviewData);
+                        echo number_format($avgRating, 1);
+                    ?>
+                </h1>
+                <span class="rating-stars">
+                    <?php echo generateStarRating(round($avgRating, 1)); ?>
+                </span>
+                <p class="mt-2 text-muted"><?php echo count($reviewData); ?> reviews</p>
+            </div>
+
+            <?php foreach ($reviewData as $review): ?>
+            <div class="col-12">
+                <div class="card my-1 p-4">
+                    <h6 class="mb-1"><?php echo htmlspecialchars($review['customer_name']); ?></h6>
+                    <div class="review-date">
+                        <?php echo $review['review_date']; ?>
+                    </div>
+
+                    <span class="rating-stars">
+                        <?php echo generateStarRating($review['rating']); ?>
+                    </span>
+                    
+                    <div class="mt-3">
+                        <p class="review-text mb-0">
+                            <?php echo htmlspecialchars($review['review']); ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
 
 </div>
 
@@ -289,4 +355,9 @@
     }
 </script>
 
-<?php include __DIR__ . "/checkout.php" ?>
+
+<?php
+    if (isset($_COOKIE['user'])) {
+        include __DIR__ . "/checkout.php";
+    }
+?>

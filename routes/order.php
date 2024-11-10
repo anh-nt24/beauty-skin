@@ -81,3 +81,13 @@ $this->router->get('/orders/history', function() use($orderController) {
     $orderData = $orderController->getAllOrdersByCustomerId($userId, $currentTab);
     require_once __DIR__ . "/../src/views/client/order/index.php";
 });
+
+$this->router->get('/admin/order-management/export/invoice', function() use($orderController) {
+    $orderId = $_GET['id'] ?? null;
+    if (!$orderId) {
+        header('HTTP/1.0 400 Bad Request');
+        echo 'Order ID is required';
+        return;
+    }
+    $orderController->generateInvoice($orderId);
+});

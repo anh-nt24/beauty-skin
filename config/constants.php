@@ -31,6 +31,13 @@
         'Peeling'
     ]);
 
+    
+    define('PRICE_LEVELS', [
+        1 => ['id' => 1, 'name' => 'Under $50', 'min' => 0, 'max' => 50],
+        2 => ['id' => 2, 'name' => '$50 - $100', 'min' => 50, 'max' => 100],
+        3 => ['id' => 3, 'name' => '$100 - $200', 'min' => 100, 'max' => 200],
+        4 => ['id' => 4, 'name' => 'Over $200', 'min' => 200, 'max' => null]
+    ]);
 
 
     define('ADMIN_PANEL', [
@@ -78,28 +85,18 @@
             "icon" => "bi bi-chat-heart",
             "subsections" => [
                 [
-                    "name" => "Chat",
-                    "url" => "chat"
+                    "name" => "FaQ",
+                    "url" => "index"
                 ],
                 [
-                    "name" => "Rating",
+                    "name" => "Product Ratings",
                     "url" => "rating"
                 ]
             ],
         ],
 
         "report" => [
-            "icon" => "bi bi-activity",
-            "subsections" => [
-                [
-                    "name" => "Revenue",
-                    "url" => "revenue"
-                ],
-                [
-                    "name" => "Performance",
-                    "url" => "performance"
-                ]
-            ],
+            "icon" => "bi bi-activity"
         ],
     ]);
 ?>

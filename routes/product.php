@@ -1,9 +1,11 @@
 <?php
 
-require_once __DIR__ . "/../src/controllers/ProductController.php";
 require_once __DIR__ . "/../src/controllers/ShippingServiceController.php";
+require_once __DIR__ . "/../src/controllers/ProductController.php";
+require_once __DIR__ . "/../src/controllers/ReviewController.php";
 
 $productController = new ProductController($this->db);
+$reviewController = new ReviewController($this->db);
 $shippingServiceController = new ShippingServiceController($this->db);
 
 $this->router->post('/admin/product-management/add', function() use($productController) {
@@ -70,7 +72,9 @@ $this->router->get('/products/bestseller', function() use ($productController) {
     $productController->getBestProducts($page);
 });
 
-$this->router->get('/products/view', function() use($productController, $shippingServiceController) {
+$this->router->get('/products/view', function() use($productController, 
+                                                    $shippingServiceController,
+                                                    $reviewController) {
     $productId = isset($_GET['id']) ? (int)$_GET['id'] : null;
     if ($productId == null) {
         header('Location: ' . ROOT_URL);
@@ -78,6 +82,23 @@ $this->router->get('/products/view', function() use($productController, $shippin
     }
 
     $productData = $productController->getProductDetails($productId);
+    $reviewData = $reviewController->getReviewsByProductId($productId);
     $shippingServices = $shippingServiceController->getAllShippingServices();
     require_once __DIR__ . "/../src/views/client/product_details/index.php";
+});
+
+$this->router->get('/search', function() use($productController) {
+    $searchQuery = $_GET['query'] ?? '';
+    $selectedCategories = isset($_GET['category']) ? $_GET['category'] : [];
+    $selectedPriceLevels = isset($_GET['priceLevel']) ? array_map('intval', $_GET['priceLevel']) : [];
+    $sort = $_GET['sort'] ?? 'newest';
+
+    $searchingResult = $productController->search([
+        'query' => $searchQuery,
+        'categories' => $selectedCategories,
+        'priceLevels' => $selectedPriceLevels,
+        'sort' => $sort
+    ]);
+    
+    require_once __DIR__ . "/../src/views/client/search/index.php";
 });

@@ -12,7 +12,7 @@ $totalOrders = count($orderData);
     <!-- search -->
     <div class="card mb-4 border-0 shadow-sm">
         <div class="card-body">
-            <form method="GET" class="row g-3 align-items-center">
+            <div class="row g-3 align-items-center">
                 <input type="hidden" name="section" value="order-management">
                 <input type="hidden" name="subsection" value="index">
                 <input type="hidden" name="tab" value="<?php echo htmlspecialchars($currentTab); ?>">
@@ -24,16 +24,16 @@ $totalOrders = count($orderData);
                         </span>
                         <input type="text" 
                                class="form-control border-start-0" 
-                               placeholder="Search by Order ID..." 
-                               name="search_id">
+                               placeholder="Search by Order Number..." 
+                               name="searchOrder">
                     </div>
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-primary px-4">
+                    <button type="button" class="btn btn-primary px-4">
                         Search
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -71,13 +71,13 @@ $totalOrders = count($orderData);
     </div>
 
     <!-- table -->
-    <div class="card border-0 shadow-sm">
+    <div id="orderTableData" class="card border-0 shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead class="bg-light">
                         <tr class="d-flex">
-                            <th class="col-3 px-4">Order ID</th>
+                            <th class="col-3 px-4">Order Number</th>
                             <th class="col-4 ">Products</th>
                             <th class="col-1 ">Total</th>
                             <th class="col-2 ">State</th>
@@ -88,7 +88,7 @@ $totalOrders = count($orderData);
                         <?php foreach ($orderData as $order): ?>
                         <tr class="d-flex">
                             <td class="col-3 px-4">
-                                <span class="fw-medium">#<?php echo htmlspecialchars($order['id']); ?></span>
+                                <span class="fw-medium">#<?php echo htmlspecialchars($order['order_number']); ?></span>
                                 <div class="text-muted small">
                                     <?php echo date('M d, Y H:i', strtotime($order['created_at'])); ?>
                                 </div>
@@ -132,7 +132,7 @@ $totalOrders = count($orderData);
                                         <button onclick="updateReject(<?php echo $order['id']; ?>)" type="button" class="btn btn-light btn-sm" title="Order Rejected">
                                             <i class="bi bi-patch-minus text-danger"></i>
                                         </button>
-                                        <button type="button" class="btn btn-light btn-sm" title="Print Invoice">
+                                        <button onclick="printInvoice(<?php echo $order['id']; ?>)" type="button" class="btn btn-light btn-sm" title="Print Invoice">
                                             <i class="bi bi-printer"></i>
                                         </button>
                                     
@@ -218,6 +218,75 @@ $totalOrders = count($orderData);
                     alert("Error updating order status.");
                 }
             });
+        }
+    }
+
+    async function printInvoice(id) {
+        try {
+            
+            const response = await fetch(`<?php echo ROOT_URL?>/admin/order-management/export/invoice?id=${id}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/pdf',
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    alert('Order not found');
+                } else {
+                    alert('Failed to generate invoice');
+                }
+                return;
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const newWindow = window.open(url, '_blank');
+
+            if (!newWindow) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `invoice-${id}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+            }, 1000);
+
+        } catch (error) {
+            console.error('Error generating invoice:', error);
+            alert('An error occurred while generating the invoice');
+        }
+    }
+</script>
+
+<script>
+    const orderIdInput = document.querySelector('input[name="searchOrder"]');
+    const orderTableData = document.getElementById('orderTableData');
+
+    orderIdInput.addEventListener('input', function() {
+        filterOrderTable(this.value.trim());
+    });
+
+    function filterOrderTable(id) {
+        const tableRows = orderTableData.getElementsByTagName('tr');
+
+        for (let i = 1; i < tableRows.length; i++) {
+            const row = tableRows[i];
+            const orderIdCol = row.getElementsByTagName('td')[0];
+            if (orderIdCol) {
+                const rowOrderId = orderIdCol.querySelector('span').textContent.trim();
+                if (rowOrderId.includes(`#${id}`)) {
+                    row.style.display = '';
+                } else {
+                    row.setAttribute('style', 'display: none !important;');
+                }
+            }
         }
     }
 </script>

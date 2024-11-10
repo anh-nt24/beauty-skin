@@ -90,6 +90,7 @@ class Database {
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 customer_id INT NOT NULL,
                 shipping_id INT NOT NULL,
+                order_number VARCHAR(7) NOT NULL UNIQUE,
                 order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                 shipping_address TEXT NOT NULL,
                 total_amount DECIMAL(10, 2) NOT NULL,
@@ -112,11 +113,13 @@ class Database {
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 customer_id INT NOT NULL,
                 product_id INT NOT NULL,
+                order_id INT NOT NULL,
                 rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
                 review TEXT,
                 review_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (customer_id) REFERENCES customers(id),
-                FOREIGN KEY (product_id) REFERENCES products(id)
+                FOREIGN KEY (product_id) REFERENCES products(id),
+                FOREIGN KEY (order_id) REFERENCES orders(id)
             );
 
             CREATE TABLE IF NOT EXISTS faq (
@@ -124,6 +127,14 @@ class Database {
                 question VARCHAR(255) NOT NULL,
                 answer VARCHAR(255) NOT NULL
             );
+
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                account_id INT NOT NULL,
+                token VARCHAR(255) NOT NULL UNIQUE, 
+                expires_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (account_id) REFERENCES accounts(id) 
+            )
 
         ";
 

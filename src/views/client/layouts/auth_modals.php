@@ -33,7 +33,7 @@
                                     </label>
                                 </div>
                                 <div class="col-6 text-end">
-                                    <a href="/forgot/" class="btn btn-default btn-block text-danger">Forget Password? </a>
+                                    <a href="<?php echo ROOT_URL?>/password/forgot-password" class="btn btn-default btn-block text-danger">Forgot Password? </a>
                                 </div>
                             </div>
 
@@ -291,7 +291,7 @@
                 setTimeout(function() {
                     $('#success-alert').alert('close');
                     location.reload();
-                }, 2000);
+                }, 1000);
             } else {
                 const errorMsg = document.getElementById('registerErrorMsg');
                 errorMsg.textContent = data.message || "An error occurred during registration.";

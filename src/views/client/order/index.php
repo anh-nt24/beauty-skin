@@ -153,6 +153,7 @@ $orderJSON = json_encode($orderData, true);
 
                 data[index] = {
                     'productId': productId,
+                    'orderId': orderId,
                     'data': {
                         'comment': form['comment_' + productId].value,
                         'rate': form['rating_' + productId].value.length === 0 ? 5 : parseInt(form['rating_' + productId].value)

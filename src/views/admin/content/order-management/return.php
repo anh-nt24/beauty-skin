@@ -13,7 +13,7 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th style="width: 10%">Order ID</th>
+                                <th style="width: 10%">Order Number</th>
                                 <th style="width: 20%">Customer</th>
                                 <th style="width: 50%">Reason</th>
                                 <th style="width: 20%">Get Refund?</th>
@@ -22,7 +22,7 @@
                         <tbody>
                         <?php foreach ($orderData as $order): ?>
                             <tr>
-                                <td>#<?php echo htmlspecialchars($order['id']); ?></td>
+                                <td>#<?php echo htmlspecialchars($order['order_number']); ?></td>
                                 <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
                                 <td><?php echo htmlspecialchars($order['reason']); ?></td>
                                 <?php if ($order['state'] == STATE_5):?>

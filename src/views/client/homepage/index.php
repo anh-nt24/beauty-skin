@@ -40,11 +40,17 @@
         <h2 class="text-center">NEWEST PRODUCTS</h2>
         <?php include __DIR__ . "/newest_product.php" ?>
 
+        <!-- FAQs -->
+        <?php include __DIR__ . "/faq.php"?>
+
 
     </main>
 
     <!-- chat -->
-     <img id="chat" width=40 src="<?php echo ROOT_URL . "/public/images/chat.png" ?>" alt="">
+    <button class="btn chat-toggle-btn" id="toggleChat">
+        <img id="chat" width=30 src="<?php echo ROOT_URL . "/public/images/chat.png" ?>" alt="">
+    </button>
+    <?php include __DIR__ . "/chat.php"; ?>
 
     <!-- footer -->
     <?php include __DIR__ . "/../layouts/footer.php"; ?>

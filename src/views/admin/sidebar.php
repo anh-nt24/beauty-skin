@@ -1,4 +1,4 @@
-<div id="sidebar" class="bg-light border-end">
+<div id="sidebar" class="bg-light border-end" style="top: 0px">
     <div class="p-3">
         <div class="d-flex flex-row align-items-center justify-content-center">
             <img style="width: 50px" src="<?php echo ROOT_URL . "/public/images/logo.png" ?>" class="header__web-logo" alt="logo">
@@ -41,3 +41,14 @@
 
     </div>
 </div>
+
+<script>
+    window.addEventListener("scroll", function() {
+        const sidebar = document.getElementById("sidebar");
+        if (window.scrollY >= 200) {
+            sidebar.classList.add("filter-panel");
+        } else {
+            sidebar.classList.remove("filter-panel");
+        }
+    });
+</script>

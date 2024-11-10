@@ -5,4 +5,5 @@
     require 'order.php';
     require 'shipping.php';
     require 'review.php';
+    require 'customer.php';
 

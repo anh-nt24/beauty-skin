@@ -1,9 +1,13 @@
 <?php
 
+require_once __DIR__ . "/../../vendor/autoload.php";
+
 require_once __DIR__ . "/../models/Order.php";
 require_once __DIR__ . "/../models/Product.php";
 require_once __DIR__ . "/../models/Customer.php";
 require_once __DIR__ . "/../models/OrderDetails.php";
+
+use Dompdf\Dompdf;
 
 class OrderController {
     private $orderModel;
@@ -28,6 +32,7 @@ class OrderController {
             
             $orderData[] = [
                 'id' => $order['id'],
+                'order_number' => $order['order_number'],
                 'products' => $products,
                 'state' => $order['order_status'],
                 'total' => number_format($order['total_amount'], 2),
@@ -68,6 +73,7 @@ class OrderController {
         foreach ($orders as $order) {
             $orderData[] = [
                 'id' => $order['id'],
+                'order_number' => $order['order_number'],
                 'customer_name' => $this->customerModel->findById($order['customer_id'])['name'],
                 'reason' => $order['note'],
                 'state' => STATE_5
@@ -79,6 +85,7 @@ class OrderController {
         foreach ($orders as $order) {
             $orderData[] = [
                 'id' => $order['id'],
+                'order_number' => $order['order_number'],
                 'customer_name' => $this->customerModel->findById($order['customer_id'])['name'],
                 'reason' => $order['note'],
                 'state' => STATE_5_1
@@ -90,6 +97,7 @@ class OrderController {
         foreach ($orders as $order) {
             $orderData[] = [
                 'id' => $order['id'],
+                'order_number' => $order['order_number'],
                 'customer_name' => $this->customerModel->findById($order['customer_id'])['name'],
                 'reason' => $order['note'],
                 'state' => STATE_5_0
@@ -213,5 +221,36 @@ class OrderController {
             echo json_encode(['success' => false]);
         }
     }
+
+    public function generateInvoice($orderId) {
+        // get invoice data
+        $invoiceData = $this->orderModel->getInvoiceData($orderId);
+        
+        if (!$invoiceData) {
+            header('HTTP/1.0 404 Not Found');
+            return 'Order not found';
+        }
+
+        $html = $this->generateInvoiceHTML($invoiceData);
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="Invoice-' . $invoiceData['order_info']['order_number'] . '.pdf"');
+        echo $dompdf->output();
+    }
+
+    private function generateInvoiceHTML($data) {
+        extract($data);
+        ob_start();
+        
+        include dirname(__FILE__) . "/../views/admin/content/order-management/invoiceTemplate.php";
+        
+        return ob_get_clean();
+    }
     
 }
+
