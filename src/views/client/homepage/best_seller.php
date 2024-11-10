@@ -14,7 +14,7 @@
         transform: translateY(-5px);
     }
     .product-title {
-        height: 48px;
+        height: 35px;
         overflow: hidden;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -63,7 +63,7 @@
         <div class="card h-100 border-0 shadow-sm product-card">
             <img src="" class="card-img-top product-img" alt="">
             <div class="card-body">
-                <h5 class="card-title product-title"></h5>
+                <h6 class="card-title product-title"></h6>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="rating"></div>
                     <h5 class="text-danger mb-0 product-price"></h5>
@@ -110,6 +110,7 @@
         const price = productCard.querySelector('.product-price');
 
         card.setAttribute('data-product-id', product.id);
+        card.setAttribute('title', product.product_name);
         img.src = `<?php echo ROOT_URL;?>/${product.image[0]}`;
         img.alt = product.product_name;
         title.textContent = product.product_name;

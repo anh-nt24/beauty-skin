@@ -25,7 +25,7 @@
     define('CATEGORIES', [
         'Lipstick',
         'Makeup Remover',
-        'Sleeping Mask',
+        'Face Mask',
         'Toner',
         'Whitening',
         'Peeling'
@@ -33,10 +33,10 @@
 
     
     define('PRICE_LEVELS', [
-        1 => ['id' => 1, 'name' => 'Under $50', 'min' => 0, 'max' => 50],
-        2 => ['id' => 2, 'name' => '$50 - $100', 'min' => 50, 'max' => 100],
-        3 => ['id' => 3, 'name' => '$100 - $200', 'min' => 100, 'max' => 200],
-        4 => ['id' => 4, 'name' => 'Over $200', 'min' => 200, 'max' => null]
+        1 => ['id' => 1, 'name' => 'Under $20', 'min' => 0, 'max' => 20],
+        2 => ['id' => 2, 'name' => '$20 - $50', 'min' => 20, 'max' => 50],
+        3 => ['id' => 3, 'name' => '$50 - $100', 'min' => 50, 'max' => 100],
+        4 => ['id' => 4, 'name' => 'Over $100', 'min' => 100, 'max' => null]
     ]);
 
 

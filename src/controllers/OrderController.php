@@ -52,6 +52,12 @@ class OrderController {
         foreach ($orders as $order) {
             $products = $this->orderDetailsModel->findByOrderId($order['id']);
             
+            foreach ($products as &$product) {
+                $images = explode(';', $product['image']);
+                $product['image'] = $images[0];
+            }
+
+            
             $orderData[] = [
                 'id' => $order['id'],
                 'order_details' => $products,

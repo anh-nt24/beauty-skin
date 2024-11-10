@@ -190,7 +190,7 @@
     
             <!-- product details -->
             <div class="col-md-6">
-                <h1 class="mb-3"><?php echo htmlspecialchars($productData['product_name']); ?></h1>
+                <h2 class="mb-3"><?php echo htmlspecialchars($productData['product_name']); ?></h2>
                 
                 <!-- rating -->
                 <div class="mb-4">

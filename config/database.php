@@ -94,7 +94,7 @@ class Database {
                 order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                 shipping_address TEXT NOT NULL,
                 total_amount DECIMAL(10, 2) NOT NULL,
-                order_status ENUM('" . STATE_0 . "', '" . STATE_1 . "', '" . STATE_2 . "', '" . STATE_3 . "', '" . STATE_4 . "', '" . STATE_5 . "') DEFAULT '" . STATE_1 . "',
+                order_status ENUM('" . STATE_0 . "', '" . STATE_1 . "', '" . STATE_2 . "', '" . STATE_3 . "', '" . STATE_4 . "', '" . STATE_5 . "', '" . STATE_5_1 . "', '" . STATE_5_0 . "') DEFAULT '" . STATE_1 . "',
                 note TEXT,
                 FOREIGN KEY (customer_id) REFERENCES customers(id),
                 FOREIGN KEY (shipping_id) REFERENCES shipping_services(id)
@@ -125,7 +125,7 @@ class Database {
             CREATE TABLE IF NOT EXISTS faq (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 question VARCHAR(255) NOT NULL,
-                answer VARCHAR(255) NOT NULL
+                answer VARCHAR(2048) NOT NULL
             );
 
             CREATE TABLE IF NOT EXISTS password_reset_tokens (

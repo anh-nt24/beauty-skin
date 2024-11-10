@@ -55,7 +55,7 @@
                         <?php
                         foreach($customersData as $customer):
                             $rateColorClass = 'bg-success';
-                            if($customer['success_rate'] < 90) {
+                            if($customer['success_rate'] < 80) {
                                 $rateColorClass = 'bg-warning';
                             }
                             if($customer['success_rate'] < 50) {
