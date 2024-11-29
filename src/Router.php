@@ -34,7 +34,7 @@ class Router {
 
     public function resolve() {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
-        $requestUri = str_replace("/beauty-skin", "", $_SERVER['REQUEST_URI']);
+        $requestUri = str_replace(ROOT_URL, "", $_SERVER['REQUEST_URI']);
         $requestUri = parse_url($requestUri, PHP_URL_PATH);
         
         if (isset($this->routes[$requestMethod][$requestUri])) {

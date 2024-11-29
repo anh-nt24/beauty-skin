@@ -148,9 +148,6 @@
             <canvas id="customerGrowthChart"></canvas>
         </div>
     </div>
-
-    <!-- recent orders -->
-    
 </div>
 
 <script>
@@ -161,10 +158,10 @@
         new Chart(revenueCtx, {
             type: 'bar',
             data: {
-                labels: <?php echo json_encode(array_column(array_reverse($dashboardData['monthlyRevenue']), 'month')); ?>,
+                labels: <?php echo json_encode(array_column(($dashboardData['monthlyRevenue']), 'month')); ?>,
                 datasets: [{
                     label: 'Monthly Revenue',
-                    data: <?php echo json_encode(array_column(array_reverse($dashboardData['monthlyRevenue']), 'revenue')); ?>,
+                    data: <?php echo json_encode(array_column(($dashboardData['monthlyRevenue']), 'revenue')); ?>,
                     borderColor: 'rgb(75, 192, 192)',
                     backgroundColor: 'rgba(216,120,86, 0.5)',
                     tension: 0.1

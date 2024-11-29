@@ -247,10 +247,10 @@ class Product {
         }
     }
     
-    public function findCategoryCounts(string $searchQuery = ''): array {
+    public function findCategoryCounts($searchQuery = '') {
         $query = "SELECT p.category, COUNT(*) as count 
                  FROM products p 
-                 WHERE 1=1 AND p.stock > 0";
+                 WHERE p.stock > 0";
         $parameters = [];
         
         if (!empty($searchQuery)) {
@@ -271,10 +271,10 @@ class Product {
         return $counts;
     }
     
-    public function findPriceLevelCounts(string $searchQuery = ''): array {
+    public function findPriceLevelCounts($searchQuery = '') {
         $counts = [];
         foreach (PRICE_LEVELS as $levelId => $level) {
-            $query = "SELECT COUNT(*) as count FROM products p WHERE 1=1 AND p.stock > 0";
+            $query = "SELECT COUNT(*) as count FROM products p WHERE p.stock > 0";
             $parameters = [];
             
             if (!empty($searchQuery)) {

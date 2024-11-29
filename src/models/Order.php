@@ -111,7 +111,7 @@ class Order {
                  FROM orders 
                  WHERE order_status = 'completed'
                  GROUP BY DATE_FORMAT(order_date, '%Y-%m')
-                 ORDER BY month DESC
+                 ORDER BY month
                  LIMIT 12";
         return $this->db->query($query)->fetchAll();
     }
